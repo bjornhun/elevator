@@ -4,6 +4,7 @@ import com.example.elevator.elevator.OrderType;
 import com.example.elevator.service.ElevatorService;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
+import java.util.List;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -24,10 +25,15 @@ public class ElevatorController {
   @ApiOperation(value = "Add floor to list of destinations")
   public String addOrder(@PathVariable @ApiParam(value = "Type of order") OrderType orderType,
       @PathVariable @ApiParam(value = "Chosen floor") Integer floor) {
-    int estimatedTime = service.getEstimatedTimeToFloor(floor);
     service.addDestinationFloor(floor, orderType);
-    return String
-        .format("Floor %d added, estimated time to destination: %d seconds", floor, estimatedTime);
+
+    if (List.of(OrderType.UP, OrderType.DOWN).contains(orderType)) {
+      return String.format("%s button pushed on floor %d", orderType, floor);
+    }
+
+    int estimatedTime = service.getEstimatedTimeToFloor(floor);
+    return String.format("Going to floor %d, estimated time to destination: %d seconds", floor,
+        estimatedTime);
   }
 
   @PostMapping(value = "/elevator/emergencybreak")
