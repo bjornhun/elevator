@@ -1,7 +1,5 @@
 package com.example.elevator.service;
 
-import static com.example.elevator.elevator.Elevator.DOOR_OPENING_TIME_IN_MILLISECONDS;
-import static com.example.elevator.elevator.Elevator.FLOOR_TIME_IN_MILLISECONDS;
 import static com.example.elevator.elevator.Elevator.TOTAL_FLOORS;
 
 import com.example.elevator.elevator.Elevator;
@@ -103,12 +101,13 @@ public class ElevatorService {
         break;
     }
 
-    return floorsToMove * FLOOR_TIME_IN_MILLISECONDS + stops * DOOR_OPENING_TIME_IN_MILLISECONDS;
+    return floorsToMove * elevator.getFloorTimeInMilliseconds()
+        + stops * elevator.getDoorOpeningTimeInMilliseconds();
   }
 
   private int findStopsInRange(Set<Integer> stops, int lowerFloor, int upperFloor) {
     return (int) stops.stream()
-        .filter(stop -> stop > lowerFloor && stop < upperFloor)
+        .filter(stop -> stop >= lowerFloor && stop <= upperFloor)
         .count();
   }
 

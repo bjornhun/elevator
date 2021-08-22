@@ -6,6 +6,7 @@ import java.util.stream.Stream;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 @Slf4j
@@ -15,8 +16,11 @@ import org.springframework.stereotype.Component;
 public class Elevator {
 
   public static final int TOTAL_FLOORS = 10;
-  public static final int FLOOR_TIME_IN_MILLISECONDS = 1000;
-  public static final int DOOR_OPENING_TIME_IN_MILLISECONDS = 3000;
+
+  @Value("${elevator.floorTimeInMilliseconds}")
+  private int floorTimeInMilliseconds;
+  @Value("${elevator.doorOpeningTimeInMilliseconds}")
+  private int doorOpeningTimeInMilliseconds;
 
   private int currentFloor;
   private ElevatorState state;
@@ -39,8 +43,11 @@ public class Elevator {
   }
 
   public void move() throws InterruptedException {
-    this.state = findNewState();
+    if (ElevatorState.IDLE.equals(state)) {
+      this.state = findNewState();
+    }
 
+    checkCurrentFloor();
     while (!ElevatorState.IDLE.equals(this.state)) {
       if (ElevatorState.GOING_UP.equals(this.state)) {
         log.info("Current floor: {}, going up", currentFloor);
@@ -76,13 +83,13 @@ public class Elevator {
   }
 
   private void goUp() throws InterruptedException {
-    Thread.sleep(FLOOR_TIME_IN_MILLISECONDS);
+    Thread.sleep(floorTimeInMilliseconds);
     currentFloor++;
     checkCurrentFloor();
   }
 
   private void goDown() throws InterruptedException {
-    Thread.sleep(FLOOR_TIME_IN_MILLISECONDS);
+    Thread.sleep(floorTimeInMilliseconds);
     currentFloor--;
     checkCurrentFloor();
   }
@@ -105,7 +112,7 @@ public class Elevator {
 
     if (shouldOpenDoor) {
       log.info("Current floor: {}, opening door", currentFloor);
-      Thread.sleep(DOOR_OPENING_TIME_IN_MILLISECONDS);
+      Thread.sleep(doorOpeningTimeInMilliseconds);
     }
   }
 
