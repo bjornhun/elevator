@@ -45,7 +45,7 @@ public class ElevatorService {
     elevator.getOrdersNeutral().clear();
     elevator.getOrdersUp().clear();
     elevator.getOrdersDown().clear();
-    log.info("Emergency break triggered", elevator.getCurrentFloor());
+    log.info("Emergency break triggered");
   }
 
   public ElevatorState getElevatorState() {
