@@ -20,14 +20,6 @@ public class ElevatorService {
     this.elevator = elevator;
   }
 
-  public void doEmergencyBreak() {
-    elevator.setState(ElevatorState.EMERGENCY_BREAK);
-    elevator.getOrdersNeutral().clear();
-    elevator.getOrdersUp().clear();
-    elevator.getOrdersDown().clear();
-    log.info("Current floor: {}, emergency break triggered", elevator.getCurrentFloor());
-  }
-
   public void addDestinationFloor(int floor, OrderType orderType) {
     validateFloor(floor);
 
@@ -46,6 +38,14 @@ public class ElevatorService {
       default:
         break;
     }
+  }
+
+  public void doEmergencyBreak() {
+    elevator.setState(ElevatorState.EMERGENCY_BREAK);
+    elevator.getOrdersNeutral().clear();
+    elevator.getOrdersUp().clear();
+    elevator.getOrdersDown().clear();
+    log.info("Current floor: {}, emergency break triggered", elevator.getCurrentFloor());
   }
 
   public ElevatorState getElevatorState() {

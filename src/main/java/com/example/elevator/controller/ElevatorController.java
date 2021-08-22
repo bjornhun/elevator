@@ -32,14 +32,14 @@ public class ElevatorController {
     return "Emergency break activated";
   }
 
+  @GetMapping(value = "/elevator/state")
+  public String getElevatorState() {
+    return String.format("Current state: %s", service.getElevatorState());
+  }
+
   @GetMapping(value = "/elevator/estimatedtime/{floor}")
   public String getEstimatedTimeToFloor(@PathVariable Integer floor) {
     int estimatedTime = service.getEstimatedTimeToFloor(floor);
     return String.format("Estimated time to floor %s: %d seconds", floor, estimatedTime);
-  }
-
-  @GetMapping(value = "/elevator/state")
-  public String getElevatorState() {
-    return String.format("Current state: %s", service.getElevatorState());
   }
 }
