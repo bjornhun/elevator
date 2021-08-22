@@ -28,10 +28,12 @@ public class ElevatorService {
     log.info("Current floor: {}, emergency break triggered", elevator.getCurrentFloor());
   }
 
-  public void addDestinationFloor(int floor, OrderType state) {
+  public void addDestinationFloor(int floor, OrderType orderType) {
     validateFloor(floor);
 
-    switch (state) {
+    log.info("Adding order: floor {}, orderType {}", floor, orderType);
+
+    switch (orderType) {
       case NEUTRAL:
         elevator.getOrdersNeutral().add(floor);
         break;

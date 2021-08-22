@@ -45,16 +45,15 @@ public class Elevator {
   public void move() throws InterruptedException {
     if (ElevatorState.IDLE.equals(state)) {
       this.state = findNewState();
+      log.info("Elevator state changed to {}", state);
     }
 
     checkCurrentFloor();
     while (!ElevatorState.IDLE.equals(this.state)) {
       if (ElevatorState.GOING_UP.equals(this.state)) {
-        log.info("Current floor: {}, going up", currentFloor);
         goUp();
       }
       if (ElevatorState.GOING_DOWN.equals(this.state)) {
-        log.info("Current floor: {}, going down", currentFloor);
         goDown();
       }
       resetElevatorStateIfApplicable();
@@ -95,6 +94,7 @@ public class Elevator {
   }
 
   private void checkCurrentFloor() throws InterruptedException {
+    log.info("Current floor: {}", currentFloor);
     boolean shouldOpenDoor = false;
 
     if (ordersNeutral.contains(currentFloor)) {
@@ -111,7 +111,7 @@ public class Elevator {
     }
 
     if (shouldOpenDoor) {
-      log.info("Current floor: {}, opening door", currentFloor);
+      log.info("Opening door");
       Thread.sleep(doorOpeningTimeInSeconds * 1000L);
     }
   }
@@ -133,6 +133,7 @@ public class Elevator {
         || ElevatorState.GOING_UP.equals(state) && currentFloor >= getHighestOrderedStop()
         || streamAllOrders().findAny().isEmpty()) {
       this.state = ElevatorState.IDLE;
+      log.info("Elevator state changed to {}", state);
     }
   }
 }
