@@ -50,7 +50,7 @@ public class ElevatorService {
     return elevator.getState();
   }
 
-  public int getEstimatedTimeToFloorInMilliseconds(int targetFloor) {
+  public int getEstimatedTimeToFloor(int targetFloor) {
     validateFloor(targetFloor);
 
     int currentFloor = elevator.getCurrentFloor();
@@ -100,8 +100,8 @@ public class ElevatorService {
         break;
     }
 
-    return floorsToMove * elevator.getFloorTimeInMilliseconds()
-        + stops * elevator.getDoorOpeningTimeInMilliseconds();
+    return floorsToMove * elevator.getFloorTimeInSeconds()
+        + stops * elevator.getDoorOpeningTimeInSeconds();
   }
 
   private int findStopsInRange(Set<Integer> stops, int lowerFloor, int upperFloor) {

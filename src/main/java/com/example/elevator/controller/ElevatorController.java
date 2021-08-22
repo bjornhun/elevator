@@ -33,9 +33,8 @@ public class ElevatorController {
 
   @GetMapping(value = "/elevator/estimatedtime/{floor}")
   public String getEstimatedTimeToFloor(@PathVariable Integer floor) {
-    int estimatedTimeInMilliseconds = service.getEstimatedTimeToFloorInMilliseconds(floor);
-    return String.format("Estimated time to floor %s in seconds: %d", floor,
-        estimatedTimeInMilliseconds / 1000);
+    int estimatedTime = service.getEstimatedTimeToFloor(floor);
+    return String.format("Estimated time to floor %s: %d seconds", floor, estimatedTime);
   }
 
   @GetMapping(value = "/elevator/state")

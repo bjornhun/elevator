@@ -17,10 +17,10 @@ public class Elevator {
 
   @Value("${elevator.totalFloors}")
   private int totalFloors;
-  @Value("${elevator.floorTimeInMilliseconds}")
-  private int floorTimeInMilliseconds;
-  @Value("${elevator.doorOpeningTimeInMilliseconds}")
-  private int doorOpeningTimeInMilliseconds;
+  @Value("${elevator.floorTimeInSeconds}")
+  private int floorTimeInSeconds;
+  @Value("${elevator.doorOpeningTimeInSeconds}")
+  private int doorOpeningTimeInSeconds;
 
   private int currentFloor;
   private ElevatorState state;
@@ -83,13 +83,13 @@ public class Elevator {
   }
 
   private void goUp() throws InterruptedException {
-    Thread.sleep(floorTimeInMilliseconds);
+    Thread.sleep(floorTimeInSeconds * 1000L);
     currentFloor++;
     checkCurrentFloor();
   }
 
   private void goDown() throws InterruptedException {
-    Thread.sleep(floorTimeInMilliseconds);
+    Thread.sleep(floorTimeInSeconds * 1000L);
     currentFloor--;
     checkCurrentFloor();
   }
@@ -112,7 +112,7 @@ public class Elevator {
 
     if (shouldOpenDoor) {
       log.info("Current floor: {}, opening door", currentFloor);
-      Thread.sleep(doorOpeningTimeInMilliseconds);
+      Thread.sleep(doorOpeningTimeInSeconds * 1000L);
     }
   }
 
