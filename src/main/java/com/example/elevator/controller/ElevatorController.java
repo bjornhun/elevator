@@ -1,6 +1,5 @@
 package com.example.elevator.controller;
 
-import com.example.elevator.elevator.ElevatorState;
 import com.example.elevator.elevator.OrderType;
 import com.example.elevator.service.ElevatorService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,14 +20,16 @@ public class ElevatorController {
 
   @PostMapping(value = "/elevator/{orderType}/{floor}")
   public String addOrder(@PathVariable OrderType orderType, @PathVariable Integer floor) {
+    int estimatedTime = service.getEstimatedTimeToFloor(floor);
     service.addDestinationFloor(floor, orderType);
-    return "Success";
+    return String
+        .format("Floor %d added, estimated time to destination: %d seconds", floor, estimatedTime);
   }
 
   @PostMapping(value = "/elevator/emergencybreak")
   public String doEmergencyBreak() {
     service.doEmergencyBreak();
-    return "Success";
+    return "Emergency break activated";
   }
 
   @GetMapping(value = "/elevator/estimatedtime/{floor}")
@@ -38,7 +39,7 @@ public class ElevatorController {
   }
 
   @GetMapping(value = "/elevator/state")
-  public ElevatorState getElevatorState() {
-    return service.getElevatorState();
+  public String getElevatorState() {
+    return String.format("Current state: %s", service.getElevatorState());
   }
 }
