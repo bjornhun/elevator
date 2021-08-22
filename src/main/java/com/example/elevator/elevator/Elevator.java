@@ -15,8 +15,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class Elevator {
 
-  public static final int TOTAL_FLOORS = 10;
-
+  @Value("${elevator.totalFloors}")
+  private int totalFloors;
   @Value("${elevator.floorTimeInMilliseconds}")
   private int floorTimeInMilliseconds;
   @Value("${elevator.doorOpeningTimeInMilliseconds}")

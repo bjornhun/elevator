@@ -1,10 +1,9 @@
 package com.example.elevator.service;
 
-import static com.example.elevator.elevator.Elevator.TOTAL_FLOORS;
-
 import com.example.elevator.elevator.Elevator;
 import com.example.elevator.elevator.ElevatorState;
 import com.example.elevator.elevator.OrderType;
+import com.example.elevator.exception.InvalidFloorException;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -112,8 +111,8 @@ public class ElevatorService {
   }
 
   private void validateFloor(int floor) {
-    if (floor <= 0 || floor > TOTAL_FLOORS) {
-      throw new IllegalArgumentException("Floor must be between 1 and " + TOTAL_FLOORS);
+    if (floor <= 0 || floor > elevator.getTotalFloors()) {
+      throw new InvalidFloorException("Floor must be between 1 and " + elevator.getTotalFloors());
     }
   }
 }

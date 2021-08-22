@@ -30,6 +30,7 @@ class ElevatorServiceTest {
   void setUp() {
     Mockito.when(elevator.getFloorTimeInMilliseconds()).thenReturn(FLOOR_TIME);
     Mockito.when(elevator.getDoorOpeningTimeInMilliseconds()).thenReturn(DOOR_OPENING_TIME);
+    Mockito.when(elevator.getTotalFloors()).thenReturn(10);
   }
 
   @Test
