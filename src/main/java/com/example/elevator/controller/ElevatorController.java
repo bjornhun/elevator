@@ -9,9 +9,11 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@RequestMapping("elevator")
 public class ElevatorController {
 
   private final ElevatorService service;
@@ -21,7 +23,7 @@ public class ElevatorController {
     this.service = service;
   }
 
-  @PostMapping(value = "/elevator/{orderType}/{floor}")
+  @PostMapping(value = "/{orderType}/{floor}")
   @ApiOperation(value = "Add floor to list of destinations")
   public String addOrder(@PathVariable @ApiParam(value = "Type of order") OrderType orderType,
       @PathVariable @ApiParam(value = "Chosen floor") Integer floor) {
@@ -36,20 +38,20 @@ public class ElevatorController {
         estimatedTime);
   }
 
-  @PostMapping(value = "/elevator/emergencybreak")
+  @PostMapping(value = "/emergencybreak")
   @ApiOperation(value = "Activate emergency break")
   public String doEmergencyBreak() {
     service.doEmergencyBreak();
     return "Emergency break activated";
   }
 
-  @GetMapping(value = "/elevator/state")
+  @GetMapping(value = "/state")
   @ApiOperation(value = "Get current state of elevator")
   public String getElevatorState() {
     return String.format("Current state: %s", service.getElevatorState());
   }
 
-  @GetMapping(value = "/elevator/estimatedtime/{floor}")
+  @GetMapping(value = "/estimatedtime/{floor}")
   @ApiOperation(value = "Get estimated time to given floor")
   public String getEstimatedTimeToFloor(
       @PathVariable @ApiParam(value = "Target floor") Integer floor) {
