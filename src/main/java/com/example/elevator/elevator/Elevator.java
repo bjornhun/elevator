@@ -25,8 +25,8 @@ public class Elevator {
   private int currentFloor;
   private ElevatorState state;
 
-  private Set<Integer> ordersUp;
-  private Set<Integer> ordersDown;
+  private Set<Integer> ordersUp; // Ordered by up button on floor
+  private Set<Integer> ordersDown; // Ordered by down button on floor
   private Set<Integer> ordersNeutral; // Ordered by elevator buttons
 
   public Elevator() {
@@ -48,14 +48,19 @@ public class Elevator {
       log.info("Elevator state changed to {}", state);
     }
 
+    // Check if door should open on current floor
     checkCurrentFloor();
+
     while (!ElevatorState.IDLE.equals(this.state)) {
+      // Go in one direction until orders exhausted
       if (ElevatorState.GOING_UP.equals(this.state)) {
         goUp();
       }
       if (ElevatorState.GOING_DOWN.equals(this.state)) {
         goDown();
       }
+      // Set state to IDLE when orders in one direction are exhausted.
+      // This will trigger a new run in the scheduler.
       resetElevatorStateIfApplicable();
     }
   }
