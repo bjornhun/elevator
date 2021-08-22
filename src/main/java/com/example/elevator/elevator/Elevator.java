@@ -33,6 +33,11 @@ public class Elevator {
     this.state = ElevatorState.IDLE;
   }
 
+  public boolean shouldMove() {
+    return ElevatorState.IDLE.equals(this.state) && streamAllOrders()
+        .anyMatch(o -> o != this.currentFloor);
+  }
+
   public void move() throws InterruptedException {
     this.state = findNewState();
 
@@ -49,12 +54,25 @@ public class Elevator {
     }
   }
 
-  private void resetElevatorStateIfApplicable() {
-    if (ElevatorState.GOING_DOWN.equals(state) && currentFloor <= getLowestOrderedStop()
-        || ElevatorState.GOING_UP.equals(state) && currentFloor >= getHighestOrderedStop()
-        || streamAllOrders().findAny().isEmpty()) {
-      this.state = ElevatorState.IDLE;
-    }
+  public int getHighestOrderedStop() {
+    return streamAllOrders().reduce(Integer::max).orElse(currentFloor);
+  }
+
+  public int getLowestOrderedStop() {
+    return streamAllOrders().reduce(Integer::min).orElse(currentFloor);
+  }
+
+  private Stream<Integer> streamAllOrders() {
+    return Stream.of(ordersUp, ordersDown, ordersNeutral)
+        .flatMap(Set::stream);
+  }
+
+  private ElevatorState findNewState() {
+    return streamAllOrders()
+        .filter(o -> o != currentFloor)
+        .findAny()
+        .map(o -> o > currentFloor ? ElevatorState.GOING_UP : ElevatorState.GOING_DOWN)
+        .orElse(ElevatorState.IDLE);
   }
 
   private void goUp() throws InterruptedException {
@@ -91,41 +109,23 @@ public class Elevator {
     }
   }
 
-  public int getHighestOrderedStop() {
-    return streamAllOrders().reduce(Integer::max).orElse(currentFloor);
-  }
-
-  public int getLowestOrderedStop() {
-    return streamAllOrders().reduce(Integer::min).orElse(currentFloor);
-  }
-
-  private ElevatorState findNewState() {
-    return streamAllOrders()
-        .filter(o -> o != currentFloor)
-        .findAny()
-        .map(o -> o > currentFloor ? ElevatorState.GOING_UP : ElevatorState.GOING_DOWN)
-        .orElse(ElevatorState.IDLE);
-  }
-
-  public Stream<Integer> streamAllOrders() {
-    return Stream.of(ordersUp, ordersDown, ordersNeutral)
-        .flatMap(Set::stream);
-  }
-
-  public boolean shouldMove() {
-    return ElevatorState.IDLE.equals(this.state) && streamAllOrders()
-        .anyMatch(o -> o != this.currentFloor);
-  }
-
-  public boolean shouldStopForOrderUp() {
+  private boolean shouldStopForOrderUp() {
     return ordersUp.contains(currentFloor)
         && (ElevatorState.GOING_UP.equals(state)
         || (ElevatorState.GOING_DOWN.equals(state) && currentFloor == getLowestOrderedStop()));
   }
 
-  public boolean shouldStopForOrderDown() {
+  private boolean shouldStopForOrderDown() {
     return ordersDown.contains(currentFloor)
         && (ElevatorState.GOING_DOWN.equals(state)
         || (ElevatorState.GOING_UP.equals(state) && currentFloor == getHighestOrderedStop()));
+  }
+
+  private void resetElevatorStateIfApplicable() {
+    if (ElevatorState.GOING_DOWN.equals(state) && currentFloor <= getLowestOrderedStop()
+        || ElevatorState.GOING_UP.equals(state) && currentFloor >= getHighestOrderedStop()
+        || streamAllOrders().findAny().isEmpty()) {
+      this.state = ElevatorState.IDLE;
+    }
   }
 }

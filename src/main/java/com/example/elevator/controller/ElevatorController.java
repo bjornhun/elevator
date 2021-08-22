@@ -1,7 +1,7 @@
 package com.example.elevator.controller;
 
 import com.example.elevator.elevator.ElevatorState;
-import com.example.elevator.elevator.FloorState;
+import com.example.elevator.elevator.OrderType;
 import com.example.elevator.service.ElevatorService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -19,9 +19,9 @@ public class ElevatorController {
     this.service = service;
   }
 
-  @PostMapping(value = "/elevator/{floorState}/{floor}")
-  public String addOrder(@PathVariable FloorState floorState, @PathVariable Integer floor) {
-    service.addDestinationFloor(floor, floorState);
+  @PostMapping(value = "/elevator/{orderType}/{floor}")
+  public String addOrder(@PathVariable OrderType orderType, @PathVariable Integer floor) {
+    service.addDestinationFloor(floor, orderType);
     return "Success";
   }
 
@@ -33,7 +33,7 @@ public class ElevatorController {
 
   @GetMapping(value = "/elevator/estimatedtime/{floor}")
   public String getEstimatedTimeToFloor(@PathVariable Integer floor) {
-    int estimatedTimeInMilliseconds = service.getEstimatedTimeToFloorInMiliseconds(floor);
+    int estimatedTimeInMilliseconds = service.getEstimatedTimeToFloorInMilliseconds(floor);
     return String.format("Estimated time to floor %s in seconds: %d", floor,
         estimatedTimeInMilliseconds / 1000);
   }

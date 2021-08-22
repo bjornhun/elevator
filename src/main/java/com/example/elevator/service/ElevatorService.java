@@ -6,7 +6,7 @@ import static com.example.elevator.elevator.Elevator.TOTAL_FLOORS;
 
 import com.example.elevator.elevator.Elevator;
 import com.example.elevator.elevator.ElevatorState;
-import com.example.elevator.elevator.FloorState;
+import com.example.elevator.elevator.OrderType;
 import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +31,7 @@ public class ElevatorService {
     log.info("Current floor: {}, emergency break triggered", elevator.getCurrentFloor());
   }
 
-  public void addDestinationFloor(int floor, FloorState state) {
+  public void addDestinationFloor(int floor, OrderType state) {
     validateFloor(floor);
 
     switch (state) {
@@ -53,44 +53,54 @@ public class ElevatorService {
     return elevator.getState();
   }
 
-  public int getEstimatedTimeToFloorInMiliseconds(int targetFloor) {
+  public int getEstimatedTimeToFloorInMilliseconds(int targetFloor) {
     validateFloor(targetFloor);
 
     int currentFloor = elevator.getCurrentFloor();
-    ElevatorState currentState = elevator.getState();
 
-    int floorsToMove = 0;
-    int stops = 0;
+    if (currentFloor == targetFloor) {
+      return 0;
+    }
 
-    if (ElevatorState.IDLE.equals(currentState) || ElevatorState.EMERGENCY_BREAK
-        .equals(currentState)) {
-      floorsToMove = Math.abs(targetFloor - currentFloor);
-    } else if (targetFloor > currentFloor) {
-      if (ElevatorState.GOING_DOWN.equals(currentState)) {
-        int lowestOrderedStop = elevator.getLowestOrderedStop();
-        floorsToMove =
-            Math.abs(currentFloor - lowestOrderedStop) + Math.abs(targetFloor - lowestOrderedStop);
-        stops += findStopsInRange(elevator.getOrdersNeutral(), lowestOrderedStop, targetFloor);
-        stops += findStopsInRange(elevator.getOrdersUp(), lowestOrderedStop, targetFloor);
-        stops += findStopsInRange(elevator.getOrdersDown(), lowestOrderedStop, targetFloor);
-      } else if (ElevatorState.GOING_UP.equals(currentState)) {
+    /* Some stops may be counted twice if there are orders of different types to the same floor,
+    which will give a pessimistic estimate, but this is ok as boarding passengers will likely place
+    new orders which will add new stops. */
+    int floorsToMove;
+    int stops;
+
+    switch (elevator.getState()) {
+      case GOING_DOWN:
+        if (targetFloor < currentFloor) {
+          floorsToMove = Math.abs(currentFloor - targetFloor);
+          stops = findStopsInRange(elevator.getOrdersNeutral(), targetFloor, currentFloor)
+              + findStopsInRange(elevator.getOrdersDown(), targetFloor, currentFloor);
+        } else {
+          int lowestOrderedStop = elevator.getLowestOrderedStop();
+          floorsToMove = Math.abs(currentFloor - lowestOrderedStop)
+              + Math.abs(targetFloor - lowestOrderedStop);
+          stops = findStopsInRange(elevator.getOrdersNeutral(), lowestOrderedStop, targetFloor)
+              + findStopsInRange(elevator.getOrdersUp(), lowestOrderedStop, targetFloor)
+              + findStopsInRange(elevator.getOrdersDown(), lowestOrderedStop, currentFloor);
+        }
+        break;
+      case GOING_UP:
+        if (targetFloor > currentFloor) {
+          floorsToMove = Math.abs(targetFloor - currentFloor);
+          stops = findStopsInRange(elevator.getOrdersNeutral(), currentFloor, targetFloor)
+              + findStopsInRange(elevator.getOrdersUp(), currentFloor, targetFloor);
+        } else {
+          int highestOrderedStop = elevator.getHighestOrderedStop();
+          floorsToMove = Math.abs(highestOrderedStop - currentFloor)
+              + Math.abs(highestOrderedStop - targetFloor);
+          stops = findStopsInRange(elevator.getOrdersNeutral(), targetFloor, highestOrderedStop)
+              + findStopsInRange(elevator.getOrdersUp(), currentFloor, highestOrderedStop)
+              + findStopsInRange(elevator.getOrdersDown(), targetFloor, highestOrderedStop);
+        }
+        break;
+      default: // IDLE or EMERGENCY_BREAK
         floorsToMove = Math.abs(targetFloor - currentFloor);
-        stops += findStopsInRange(elevator.getOrdersNeutral(), currentFloor, targetFloor);
-        stops += findStopsInRange(elevator.getOrdersUp(), currentFloor, targetFloor);
-      }
-    } else if (targetFloor < currentFloor) {
-      if (ElevatorState.GOING_UP.equals(currentState)) {
-        int highestOrderedStop = elevator.getHighestOrderedStop();
-        floorsToMove = Math.abs(highestOrderedStop - currentFloor) + Math
-            .abs(highestOrderedStop - targetFloor);
-        stops += findStopsInRange(elevator.getOrdersNeutral(), highestOrderedStop, targetFloor);
-        stops += findStopsInRange(elevator.getOrdersUp(), highestOrderedStop, targetFloor);
-        stops += findStopsInRange(elevator.getOrdersDown(), highestOrderedStop, targetFloor);
-      } else if (ElevatorState.GOING_DOWN.equals(currentState)) {
-        floorsToMove = Math.abs(currentFloor - targetFloor);
-        stops += findStopsInRange(elevator.getOrdersNeutral(), currentFloor, targetFloor);
-        stops += findStopsInRange(elevator.getOrdersDown(), currentFloor, targetFloor);
-      }
+        stops = 0;
+        break;
     }
 
     return floorsToMove * FLOOR_TIME_IN_MILLISECONDS + stops * DOOR_OPENING_TIME_IN_MILLISECONDS;
